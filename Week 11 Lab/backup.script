@@ -1,0 +1,9 @@
+#!/bin/bash
+
+rsync -avzh -e "ssh -i $HOME/.ssh/ubuntu-1_key" ./backup/ webb1@159.223.196.38:/home/webb1/
+
+exit 0
+
+
+
+

@@ -1,0 +1,44 @@
+#!/bin/bash
+#:Part 4 Mount Check
+#: test whether a device or filesystem is mounted.
+#:If it is mounted display a message that includes the size in a human readable format
+
+
+help(){
+echo "run script as project 4 with the device or file system as argument 
+i.e. project_4 /dev/sda2"
+}
+
+
+# help
+
+if [ $# -eq 0 ]; then
+echo "No arguments provided"
+exit 1
+fi
+
+while getopts ":h" opt; do
+  case ${opt} in
+    h)
+      help
+      
+      ;;
+      esac
+
+    done
+
+if  findmnt $1 >/dev/null; then
+
+df -h $1 |awk 'FNR==2{print $1 " is " $5 " used with "  $4 " free."}'
+
+
+
+else
+ echo "Device or File System Not Mounted"
+exit 1
+
+
+fi
+
+
+

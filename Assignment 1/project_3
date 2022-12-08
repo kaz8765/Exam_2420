@@ -1,0 +1,103 @@
+#!/bin/bash
+#Kazi Wahedullah
+#Part 3 Tar file creation
+# Backups
+
+# backup a directory or directories to a specific location.
+
+# Have a default location as well as the ability to pass a location as an argument
+
+# create a single archived file `.tar.gz` from your directory or list of directories. 
+# After compress the .tar.gz file using “xz”. So that you end up with a back-up-file-name.xz file. 
+
+# have an option to name the backup file, if no name is provided use a default that includes the date.
+
+# Also create an option to restore your backups to a specific location. 
+
+# example
+
+# //Run tar command to create an archived named file.tar.gz for given directory name by running: tar -czvf file.tar.gz directory
+
+
+
+help() {
+  echo "-d is used before each directory name to specify which directory to backup from "
+  echo "-b is used to to specify which directory to back up in, otherwise default will be /home/backup_folder/ \n"
+  echo "-n is used to determine the name of the file that will be backed up, the default will be backup_file_datetime.xz \n"  
+
+  echo -e "\nExample: project_3 -d ./dir-one /home/work/bin -b /home/work/bckup -n bup1\n"
+
+
+  echo -e "-R is used to uncompress the .xz backup, in the format of -R / ...path..../filename.xz followed by path for extraction \n"
+
+  echo "Example: -R ./folder/backup1.xz ./bin"
+
+
+}
+
+# help
+
+# echo "------------------------------------------------------------------------"
+
+
+DESTINATION_FOLDER=$HOME/backup_folder
+DIRECTORY_TO_BACKUP=''
+DATE=$(date "+%F-%T")
+BACKUP_FILE_NAME="backup_file_"
+FILENAME=${BACKUP_FILE_NAME}${DATE}
+
+
+makedir() {
+if [ ! -d $DESTINATION_FOLDER ]; then
+    mkdir $DESTINATION_FOLDER;
+fi
+}
+
+filenamecheck() {
+if [ -f "${DESTINATION_FOLDER}/${FILENAME}" ]; then
+  printf "$FILENAME already exists, please try again with a different file name"
+  
+fi
+}
+
+
+
+while getopts ":d:b:n:R:" option; do
+  case "${option}" in
+    d)
+      DIRECTORY_TO_BACKUP+=$OPTARG" "
+      
+      ;;
+
+
+    b)
+      DESTINATION_FOLDER=${OPTARG}
+      ;;
+
+
+    n)
+      FILENAME=${OPTARG}
+      filenamecheck
+      ;;
+    
+    R)
+    
+      xz -d $2 
+      tar xvf ${2::-3} -C $3 #takes off extension .xz using -3, $3 is location to decompress to  
+    #   xz only works on one file, to decompress directory need combination with tar 
+      exit 0
+      ;;
+    *|h)
+      help
+      exit 0
+      ;;
+    
+    esac
+done
+
+makedir
+tar -czf "${DESTINATION_FOLDER}/${FILENAME}.tar.gz" $DIRECTORY_TO_BACKUP
+xz -c ${DESTINATION_FOLDER}"/${FILENAME}.tar.gz" > "${DESTINATION_FOLDER}/${FILENAME}.xz"
+
+printf "Backup successful"
+
